@@ -15,19 +15,7 @@ NUM_WORDS = 1683 # Vocab length
 MAX_LEN = 20 # Padding length (# of words)
 LSTM_EMBED = 1683 # Number of LSTM nodes
 
-def batches_generator(train_data, batch_size=32):
-    # For OHE inputs
-    num_words = np.max(train_data) + 1
-    print(train_data.shape)
-    timesteps = train_data.shape[1]
-    while True:
-        indices = np.random.choice(len(train_data), size=batch_size)
-        X = train_data[indices]
-        X = np_utils.to_categorical(X, num_words)
-        X = X.reshape((batch_size, timesteps, num_words))
-        yield (X, X)
-
-train_data = pd.read_csv("newDataWiki.csv")
+train_data = pd.read_csv("newData.csv")
 
 ps=PorterStemmer()
 
@@ -36,7 +24,7 @@ train_data.drop('Answer', inplace=True, axis=1)
 
 train_data = train_data[train_data.Question.apply(lambda x: len(x.split())) < MAX_LEN]
 
-train_data.Question = train_data.Question.apply(lambda x: x.strip())#(re.sub('[^\u0620-\uFEF0\s]', '', x))
+train_data.Question = train_data.Question.apply(lambda x: x.strip())
 #train_data.Question = train_data.Question.apply(lambda x: (re.sub('[^\u0620-\uFEF0\s]', '', x)).strip())
 
 train_data = train_data[train_data.Question.apply(len) > 0]
@@ -64,7 +52,6 @@ model.add(LSTM(LSTM_EMBED, dropout=0.2, recurrent_dropout=0.2, return_sequences=
 model.add(Dense(NUM_WORDS, activation='softmax'))
 
 model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=["accuracy"])
-#model.fit_generator(batches_generator(train_data), steps_per_epoch=(len(train_data) // BATCH_SIZE))
 model.fit(train_data, np.expand_dims(train_data, -1), epochs=53, batch_size=BATCH_SIZE)
 
 model.save("lstm-encoder.h5")
