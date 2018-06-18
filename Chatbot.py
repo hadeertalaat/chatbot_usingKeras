@@ -16,7 +16,7 @@ LSTM_EMBED = 1683 # Number of LSTM nodes
 
 K.set_learning_phase(False)
 
-data = pd.read_csv("newDataWiki.csv")
+data = pd.read_csv("newData.csv")
 tokenizer = pickle.load(open("lstm-autoencoder-tokenizer.pickle", "rb"))
 
 ps=PorterStemmer()
